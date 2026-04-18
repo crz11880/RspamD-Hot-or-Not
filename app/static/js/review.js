@@ -8,7 +8,7 @@ async function loadNextMessage() {
             if (response.status === 404) {
                 showNoMessages();
             } else {
-                showError('Fehler beim Laden der Mail');
+                showError(t('load_mail_error'));
             }
             return;
         }
@@ -25,42 +25,42 @@ async function loadNextMessage() {
 function displayMessage(message) {
     const container = document.getElementById('messageContainer');
     
-    const body = message.raw_message || '(Kein Body)';
+    const body = message.raw_message || t('no_body');
     const headerOnly = body.split('\n\n')[0];
     
     container.innerHTML = `
         <div class="message-header">
             <div class="message-info">
-                <div class="info-label">Von</div>
-                <div class="info-value">${escapeHtml(message.sender || 'Unbekannt')}</div>
+                <div class="info-label">${t('from')}</div>
+                <div class="info-value">${escapeHtml(message.sender || t('unknown'))}</div>
             </div>
             
             <div class="message-info">
-                <div class="info-label">An</div>
+                <div class="info-label">${t('to')}</div>
                 <div class="info-value">${escapeHtml(message.recipient || '-')}</div>
             </div>
             
-            <div class="subject-title">${escapeHtml(message.subject || '(Kein Betreff)')}</div>
+            <div class="subject-title">${escapeHtml(message.subject || t('no_subject'))}</div>
             
             <div class="message-info">
-                <div class="info-label">Datum</div>
-                <div class="info-value">${message.received_date ? new Date(message.received_date).toLocaleString('de-DE') : 'Unbekannt'}</div>
+                <div class="info-label">${t('date')}</div>
+                <div class="info-value">${message.received_date ? formatDateLocalized(message.received_date) : t('unknown')}</div>
             </div>
         </div>
         
         <div class="message-body">
-${escapeHtml(body.substring(0, 2000))}${body.length > 2000 ? '\n\n[...gekürzt...]' : ''}
+${escapeHtml(body.substring(0, 2000))}${body.length > 2000 ? `\n\n${t('shortened')}` : ''}
         </div>
         
         <div class="message-actions">
             <button class="btn btn-success btn-large" onclick="classifyMessage('ham')" title="H">
-                ✓ Kein Spam (H)
+                ✓ ${t('not_spam')} (H)
             </button>
             <button class="btn btn-danger btn-large" onclick="classifyMessage('spam')" title="S">
-                ✗ Spam (S)
+                ✗ ${t('spam')} (S)
             </button>
             <button class="btn btn-secondary btn-large" onclick="skipMessage()" title="U">
-                ⊘ Überspringen (U)
+                ⊘ ${t('skip')} (U)
             </button>
         </div>
     `;
@@ -84,10 +84,10 @@ async function classifyMessage(decision) {
         if (response.ok) {
             loadNextMessage();
         } else {
-            showError('Fehler beim Speichern');
+            showError(t('save_error'));
         }
     } catch (error) {
-        showError('Fehler: ' + error.message);
+        showError(t('error_prefix') + error.message);
     }
 }
 
@@ -100,10 +100,10 @@ async function skipMessage() {
         if (response.ok) {
             loadNextMessage();
         } else {
-            showError('Fehler beim Überspringen');
+            showError(t('skip_error'));
         }
     } catch (error) {
-        showError('Fehler: ' + error.message);
+        showError(t('error_prefix') + error.message);
     }
 }
 

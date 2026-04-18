@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Einstellungen - RspamdHotOrNot</title>
+    <title data-i18n="settings_title">Settings - RspamdHotOrNot</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -15,17 +15,17 @@
             
             <ul class="nav-menu">
                 <li><a href="/dashboard">Dashboard</a></li>
-                <li><a href="/review">Prüfen</a></li>
-                <li><a href="/history">Verlauf</a></li>
-                <li><a href="/settings" class="active">Einstellungen</a></li>
+                <li><a href="/review" data-i18n="nav_review">Review</a></li>
+                <li><a href="/history" data-i18n="nav_history">History</a></li>
+                <li><a href="/settings" class="active" data-i18n="nav_settings">Settings</a></li>
                 <li class="divider"></li>
-                <li><a href="#" onclick="logout()" class="logout">Abmelden</a></li>
+                <li><a href="#" onclick="logout()" class="logout" data-i18n="nav_logout">Logout</a></li>
             </ul>
         </nav>
 
         <main class="main-content">
             <header class="top-bar">
-                <h1>Einstellungen</h1>
+                <h1 data-i18n="settings_title">Settings</h1>
                 <div class="user-info">
                     <span id="username"></span>
                 </div>
@@ -33,29 +33,83 @@
 
             <div class="content settings-content">
                 <div class="settings-section">
-                    <h2>Mail-Quelle</h2>
-                    <p class="info">Aktuelle Quelle: <code id="mailSource">-</code></p>
-                    <p class="note">Die Mail-Quelle wird aus der .env-Datei konfiguriert.</p>
+                    <h2 data-i18n="mail_source">Mail source</h2>
+                    <p class="info"><span data-i18n="current_source">Current source</span>: <code id="mailSource">-</code></p>
+                    <p class="note" data-i18n="source_note">The mail source is configured via the .env file.</p>
                 </div>
 
                 <div class="settings-section">
-                    <h2>Rspamd-Integration</h2>
+                    <h2 data-i18n="rspamd_integration">Rspamd integration</h2>
                     <div class="settings-item">
-                        <label>Status:</label>
+                        <label data-i18n="status">Status</label>:
                         <span id="rspamdStatus" class="status-indicator">-</span>
                     </div>
-                    <p class="note">Rspamd-Verbindung wird beim Start überprüft.</p>
+                    <p class="note" data-i18n="rspamd_note">Rspamd connection is checked at startup.</p>
                 </div>
 
                 <div class="settings-section">
-                    <h2>Info</h2>
+                    <h2 data-i18n="info">Info</h2>
                     <p class="note">Wenn dir das Projekt hilft: <a href="https://buymeacoffee.com/worklessit" target="_blank" rel="noopener noreferrer">Buy Me a Coffee</a></p>
                 </div>
 
                 <div class="settings-section">
-                    <h2>Verwaltung</h2>
-                    <button class="btn btn-secondary" onclick="resetDatabase()">Datenbank zurücksetzen</button>
-                    <p class="warning">Dies wird alle Klassifizierungen löschen.</p>
+                    <h2 data-i18n="timezone">Timezone</h2>
+                    <p class="note" data-i18n="timezone_note">Select preferred timezone for timestamps.</p>
+                    <div class="settings-item" style="gap:0.5rem; flex-direction:column; align-items:flex-start;">
+                        <label for="timezoneSelect" data-i18n="timezone">Timezone</label>:
+                        <select id="timezoneSelect" class="input-field" style="max-width:320px;">
+                            <option value="UTC">UTC</option>
+                            <option value="Europe/Berlin">Europe/Berlin (MEZ/MESZ)</option>
+                            <option value="Europe/Vienna">Europe/Vienna</option>
+                            <option value="Europe/Zurich">Europe/Zurich</option>
+                            <option value="Europe/London">Europe/London</option>
+                            <option value="America/New_York">America/New_York</option>
+                            <option value="America/Los_Angeles">America/Los_Angeles</option>
+                            <option value="Asia/Tokyo">Asia/Tokyo</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="saveTimezone()" style="margin-top:0.5rem;" data-i18n="save">Save</button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2 data-i18n="language">Language</h2>
+                    <p class="note" data-i18n="language_note">Select UI language.</p>
+                    <div class="settings-item" style="gap:0.5rem; flex-direction:column; align-items:flex-start;">
+                        <label for="languageSelect" data-i18n="language">Language</label>:
+                        <select id="languageSelect" class="input-field" style="max-width:320px;">
+                            <option value="en">English</option>
+                            <option value="de">Deutsch</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="saveLanguage()" style="margin-top:0.5rem;" data-i18n="save">Save</button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2 data-i18n="change_credentials">Change credentials</h2>
+                    <p class="note" data-i18n="credentials_note">Change username and password for the current account.</p>
+                    <div class="form-group">
+                        <label for="currentPassword" data-i18n="current_password">Current password</label>
+                        <input type="password" id="currentPassword" class="input-field" placeholder="Current password" data-i18n-placeholder="current_password" autocomplete="current-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="newUsername" data-i18n="new_username">New username</label>
+                        <input type="text" id="newUsername" class="input-field" placeholder="New username" data-i18n-placeholder="new_username" autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword" data-i18n="new_password">New password</label>
+                        <input type="password" id="newPassword" class="input-field" placeholder="New password" data-i18n-placeholder="new_password" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPasswordConfirm" data-i18n="confirm_password">Confirm new password</label>
+                        <input type="password" id="newPasswordConfirm" class="input-field" placeholder="Confirm new password" data-i18n-placeholder="confirm_password" autocomplete="new-password">
+                    </div>
+                    <button class="btn btn-primary" onclick="changeCredentials()" data-i18n="save_credentials">Save credentials</button>
+                </div>
+
+                <div class="settings-section">
+                    <h2 data-i18n="management">Management</h2>
+                    <button class="btn btn-secondary" onclick="resetDatabase()" data-i18n="reset_db">Reset database</button>
+                    <p class="warning" data-i18n="reset_warning">This will delete all classifications.</p>
                 </div>
 
                 <div id="message" class="message"></div>
@@ -63,6 +117,7 @@
         </main>
     </div>
 
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/app.js"></script>
     <script>
         async function loadSettings() {
@@ -74,16 +129,96 @@
                 });
                 
                 const data = await response.json();
-                const status = data.rspamd.enabled ? 'Verbunden' : 'Deaktiviert';
+                const status = data.rspamd.enabled ? t('connected') : t('disabled');
                 document.getElementById('rspamdStatus').textContent = status;
                 document.getElementById('rspamdStatus').className = 'status-indicator ' + (data.rspamd.enabled ? 'active' : 'inactive');
             } catch (error) {
                 console.error('Error loading settings:', error);
             }
+
+            // load stored timezone
+            const tz = localStorage.getItem('app_timezone') || 'Europe/Berlin';
+            const sel = document.getElementById('timezoneSelect');
+            if (sel) sel.value = tz;
+
+            const langSel = document.getElementById('languageSelect');
+            if (langSel) langSel.value = getLanguage();
+
+            // prefill username
+            const un = localStorage.getItem('username');
+            if (un) document.getElementById('newUsername').value = un;
+        }
+
+        function saveTimezone() {
+            const tz = document.getElementById('timezoneSelect').value;
+            localStorage.setItem('app_timezone', tz);
+            showMessage(`${t('timezone_saved_prefix')}: ${tz}`, 'success');
+        }
+
+        function saveLanguage() {
+            const language = document.getElementById('languageSelect').value;
+            setLanguage(language);
+            applyTranslations();
+            showMessage(`${t('language_saved_prefix')}: ${language.toUpperCase()}`, 'success');
+        }
+
+        async function changeCredentials() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newUsername = document.getElementById('newUsername').value.trim();
+            const newPassword = document.getElementById('newPassword').value;
+            const newPasswordConfirm = document.getElementById('newPasswordConfirm').value;
+
+            if (!currentPassword || !newUsername || !newPassword) {
+                showMessage(t('fill_all_fields'), 'error');
+                return;
+            }
+            if (newPassword !== newPasswordConfirm) {
+                showMessage(t('passwords_mismatch'), 'error');
+                return;
+            }
+            if (newPassword.length < 8) {
+                showMessage(t('min_password_length'), 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/change-credentials', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_username: newUsername,
+                        new_password: newPassword
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    showMessage(data.detail || t('save_failed'), 'error');
+                    return;
+                }
+
+                // update stored credentials
+                localStorage.setItem('username', data.username);
+                localStorage.setItem('token', data.access_token);
+                document.getElementById('username').textContent = data.username;
+
+                // clear password fields
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('newPasswordConfirm').value = '';
+
+                showMessage(t('credentials_changed'), 'success');
+            } catch (error) {
+                showMessage(t('error_prefix') + error.message, 'error');
+            }
         }
 
         async function resetDatabase() {
-            if (confirm('Alle Daten werden gelöscht. Fortfahren?')) {
+            if (confirm(t('confirm_reset'))) {
                 try {
                     const response = await fetch('/api/admin/init-database', {
                         method: 'POST',
@@ -95,7 +230,7 @@
                     const data = await response.json();
                     showMessage(data.message, 'success');
                 } catch (error) {
-                    showMessage('Fehler: ' + error.message, 'error');
+                    showMessage(t('error_prefix') + error.message, 'error');
                 }
             }
         }
@@ -107,6 +242,7 @@
             setTimeout(() => msgDiv.textContent = '', 3000);
         }
 
+        applyTranslations();
         document.getElementById('username').textContent = localStorage.getItem('username');
         loadSettings();
     </script>

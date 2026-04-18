@@ -4,9 +4,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from sqlalchemy.orm import Session
+from sqlalchemy import inspect, text
 
 from app.config import settings
-from app.db import init_db, get_db, SessionLocal
+from app.db import init_db, get_db, SessionLocal, engine
 from app.routes import auth, messages, dashboard, settings as settings_routes, admin
 from app.services.auth_service import AuthService
 from app.models.user import User as UserModel
@@ -21,9 +22,23 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
+
+def ensure_user_schema():
+    with engine.begin() as conn:
+        inspector = inspect(conn)
+        if not inspector.has_table("users"):
+            return
+
+        columns = [column["name"] for column in inspector.get_columns("users")]
+        if "must_change_credentials" not in columns:
+            conn.execute(
+                text("ALTER TABLE users ADD COLUMN must_change_credentials BOOLEAN NOT NULL DEFAULT 1")
+            )
+
 @app.on_event("startup")
 def startup_event():
     init_db()
+    ensure_user_schema()
     db = SessionLocal()
     
     admin_user = db.query(UserModel).filter(
@@ -53,6 +68,11 @@ async def index(request: Request):
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
+
+@app.get("/first-login", response_class=HTMLResponse)
+async def first_login_page(request: Request):
+    return templates.TemplateResponse("first_login.html", {"request": request})
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request):

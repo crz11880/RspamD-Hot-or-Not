@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prüfen - RspamdHotOrNot</title>
+    <title data-i18n="review_title">Mail review - RspamdHotOrNot</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -15,17 +15,17 @@
             
             <ul class="nav-menu">
                 <li><a href="/dashboard">Dashboard</a></li>
-                <li><a href="/review" class="active">Prüfen</a></li>
-                <li><a href="/history">Verlauf</a></li>
-                <li><a href="/settings">Einstellungen</a></li>
+                <li><a href="/review" class="active" data-i18n="nav_review">Review</a></li>
+                <li><a href="/history" data-i18n="nav_history">History</a></li>
+                <li><a href="/settings" data-i18n="nav_settings">Settings</a></li>
                 <li class="divider"></li>
-                <li><a href="#" onclick="logout()" class="logout">Abmelden</a></li>
+                <li><a href="#" onclick="logout()" class="logout" data-i18n="nav_logout">Logout</a></li>
             </ul>
         </nav>
 
         <main class="main-content">
             <header class="top-bar">
-                <h1>Mail-Prüfung</h1>
+                <h1 data-i18n="review_title">Mail review</h1>
                 <div class="user-info">
                     <span id="username"></span>
                 </div>
@@ -33,17 +33,18 @@
 
             <div class="content review-content">
                 <div id="noMessagesDiv" class="no-messages" style="display:none;">
-                    <p>Keine offenen Mails zur Prüfung</p>
-                    <button class="btn btn-primary" onclick="location.href='/dashboard'">Zum Dashboard</button>
+                    <p data-i18n="no_open_mails">No open mails for review</p>
+                    <button class="btn btn-primary" onclick="location.href='/dashboard'" data-i18n="back_to_dashboard">Back to dashboard</button>
                 </div>
 
                 <div id="messageContainer" class="message-container">
-                    <div class="loading">Wird geladen...</div>
+                    <div class="loading" data-i18n="loading">Loading...</div>
                 </div>
             </div>
         </main>
     </div>
 
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/app.js"></script>
     <script src="/static/js/review.js"></script>
 </body>

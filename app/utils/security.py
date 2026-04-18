@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Dict
 from fastapi import HTTPException, status, Depends
-from fastapi.security import HTTPBearer, HTTPAuthCredentials
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app.db import get_db
 import json
@@ -22,7 +22,7 @@ def create_session_token(user_id: int) -> str:
     }
     return token
 
-def get_current_user(credentials: HTTPAuthCredentials = Depends(security)):
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
     session = _sessions.get(token)
     
@@ -38,5 +38,5 @@ def logout_session(token: str):
     if token in _sessions:
         del _sessions[token]
 
-def get_session_token_from_request(credentials: HTTPAuthCredentials = Depends(security)) -> str:
+def get_session_token_from_request(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
     return credentials.credentials

@@ -534,6 +534,36 @@ tr:hover {
     color: var(--text-dark);
 }
 
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--text-dark);
+}
+
+.input-field {
+    width: 100%;
+    max-width: 380px;
+    padding: 9px 12px;
+    border: 1px solid var(--border-color, #dde1e7);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    box-sizing: border-box;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--accent, #4a90e2);
+    box-shadow: 0 0 0 2px rgba(74,144,226,0.15);
+}
+
 .status-indicator {
     display: inline-block;
     padding: 4px 12px;
@@ -657,6 +687,32 @@ code {
     opacity: 0.8;
 }
 
+/* FLOATING CREDIT BUTTON */
+.dev-by-button {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1200;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: var(--primary);
+    color: var(--text-light);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-decoration: none;
+    box-shadow: var(--shadow-hover);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.dev-by-button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
     .sidebar {
@@ -699,6 +755,13 @@ code {
 @media (max-width: 480px) {
     .login-card {
         padding: 30px 20px;
+    }
+
+    .dev-by-button {
+        right: 12px;
+        bottom: 12px;
+        font-size: 11px;
+        padding: 8px 12px;
     }
     
     .stats-grid {

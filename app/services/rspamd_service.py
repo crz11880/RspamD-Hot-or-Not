@@ -47,6 +47,9 @@ class RspamdService:
             return {"enabled": False}
         try:
             client = RspamdService._get_client()
-            return client.get_status()
+            status = client.get_status()
+            if isinstance(status, dict):
+                return {"enabled": True, **status}
+            return {"enabled": True, "status": "ok", "output": str(status)}
         except Exception as e:
             return {"enabled": True, "error": str(e)}

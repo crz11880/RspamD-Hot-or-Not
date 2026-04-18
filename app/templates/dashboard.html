@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - RspamdHotOrNot</title>
+    <title data-i18n="dashboard_title">Dashboard</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -15,17 +15,17 @@
             
             <ul class="nav-menu">
                 <li><a href="/dashboard" class="active">Dashboard</a></li>
-                <li><a href="/review">Prüfen</a></li>
-                <li><a href="/history">Verlauf</a></li>
-                <li><a href="/settings">Einstellungen</a></li>
+                <li><a href="/review" data-i18n="nav_review">Review</a></li>
+                <li><a href="/history" data-i18n="nav_history">History</a></li>
+                <li><a href="/settings" data-i18n="nav_settings">Settings</a></li>
                 <li class="divider"></li>
-                <li><a href="#" onclick="logout()" class="logout">Abmelden</a></li>
+                <li><a href="#" onclick="logout()" class="logout" data-i18n="nav_logout">Logout</a></li>
             </ul>
         </nav>
 
         <main class="main-content">
             <header class="top-bar">
-                <h1>Dashboard</h1>
+                <h1 data-i18n="dashboard_title">Dashboard</h1>
                 <div class="user-info">
                     <span id="username"></span>
                 </div>
@@ -34,43 +34,62 @@
             <div class="content">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-label">Offene Prüfungen</div>
+                        <div class="stat-label" data-i18n="pending_reviews">Pending reviews</div>
                         <div class="stat-value" id="pendingCount">-</div>
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-label">Spam heute</div>
+                        <div class="stat-label" data-i18n="spam_today">Spam today</div>
                         <div class="stat-value" id="spamToday">-</div>
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-label">Ham heute</div>
+                        <div class="stat-label" data-i18n="ham_today">Ham today</div>
                         <div class="stat-value" id="hamToday">-</div>
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-label">Gesamt bearbeitet</div>
+                        <div class="stat-label" data-i18n="total_processed">Total processed</div>
                         <div class="stat-value" id="totalProcessed">-</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label" data-i18n="new_mail_last_sync">New mails last sync</div>
+                        <div class="stat-value" id="lastSyncNew">-</div>
+                        <div class="activity-time" id="lastSyncDuplicates">-</div>
+                        <div class="activity-time" id="lastSyncAt">-</div>
                     </div>
                 </div>
 
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="syncMessages()">Mails synchronisieren</button>
-                    <button class="btn btn-secondary" onclick="window.location.href='/review'">Zur Prüfseite</button>
+                    <button class="btn btn-primary" onclick="syncMessages()" data-i18n="sync_mails">Sync mails</button>
+                    <button class="btn btn-secondary" onclick="window.location.href='/review'" data-i18n="go_to_review">Go to review</button>
                 </div>
 
                 <section class="recent-activities">
-                    <h2>Letzte Aktivitäten</h2>
+                    <h2 data-i18n="recent_activities">Recent activities</h2>
                     <div id="activitiesList" class="activities-list">
-                        <p class="loading">Wird geladen...</p>
+                        <p class="loading" data-i18n="loading">Loading...</p>
                     </div>
                 </section>
             </div>
         </main>
     </div>
 
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/app.js"></script>
     <script>
+        let syncCardRefreshTimer = null;
+
+        function updateSyncCard(lastSync) {
+            const sync = lastSync || {};
+            document.getElementById('lastSyncNew').textContent = sync.new_messages ?? 0;
+            document.getElementById('lastSyncDuplicates').textContent = `${t('duplicates')}: ${sync.duplicates ?? 0}`;
+            document.getElementById('lastSyncAt').textContent = sync.at
+                ? `${t('last_sync_prefix')}: ${formatDateLocalized(sync.at)}`
+                : t('no_sync_yet');
+        }
+
         async function loadDashboard() {
             try {
                 const response = await fetch('/api/dashboard/stats', {
@@ -85,11 +104,41 @@
                 document.getElementById('spamToday').textContent = data.spam_today;
                 document.getElementById('hamToday').textContent = data.ham_today;
                 document.getElementById('totalProcessed').textContent = data.total_processed;
+
+                updateSyncCard(data.last_sync);
                 
                 loadActivities();
             } catch (error) {
                 console.error('Error loading dashboard:', error);
             }
+        }
+
+        async function refreshSyncCard() {
+            try {
+                const response = await fetch('/api/dashboard/stats', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+                updateSyncCard(data.last_sync);
+            } catch (error) {
+                console.error('Error refreshing sync card:', error);
+            }
+        }
+
+        function startSyncCardAutoRefresh() {
+            if (syncCardRefreshTimer) {
+                clearInterval(syncCardRefreshTimer);
+            }
+
+            // Refresh every 45s so new sync data appears without manual reload.
+            syncCardRefreshTimer = setInterval(refreshSyncCard, 45000);
         }
 
         async function loadActivities() {
@@ -104,14 +153,14 @@
                 const list = document.getElementById('activitiesList');
                 
                 if (activities.length === 0) {
-                    list.innerHTML = '<p>Keine Aktivitäten</p>';
+                    list.innerHTML = `<p>${t('no_activities')}</p>`;
                     return;
                 }
                 
                 list.innerHTML = activities.slice(0, 10).map(a => `
                     <div class="activity-item">
                         <span class="activity-action">${a.action}</span>
-                        <span class="activity-time">${new Date(a.created_at).toLocaleString('de-DE')}</span>
+                        <span class="activity-time">${formatDateLocalized(a.created_at)}</span>
                     </div>
                 `).join('');
             } catch (error) {
@@ -129,15 +178,23 @@
                 });
                 
                 const data = await response.json();
-                alert(`Synchronisiert: ${data.new_messages} neue Mails, ${data.duplicates_skipped} Duplikate`);
+                alert(`${t('sync_success_prefix')}: ${data.new_messages} ${t('sync_success_new')}, ${data.duplicates_skipped} ${t('sync_success_dupes')}`);
                 loadDashboard();
             } catch (error) {
-                alert('Fehler beim Synchronisieren: ' + error.message);
+                alert(t('sync_error_prefix') + error.message);
             }
         }
 
+        applyTranslations();
         document.getElementById('username').textContent = localStorage.getItem('username');
         loadDashboard();
+        startSyncCardAutoRefresh();
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                refreshSyncCard();
+            }
+        });
     </script>
 </body>
 </html>

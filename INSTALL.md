@@ -341,6 +341,95 @@ sudo systemctl start rspamd-learning
 sudo systemctl status rspamd-learning
 ```
 
+### Production auf Rspamd-Server (systemd + Auto-Sync)
+
+Dieser Abschnitt entspricht dem produktiven Setup mit User `hwlmadm` und Projektpfad `~/rspamd-hot-or-not`.
+
+1. App-Service anlegen:
+
+```ini
+# /etc/systemd/system/rspamd-hot-or-not.service
+[Unit]
+Description=RspamdHotOrNot FastAPI Service
+After=network.target
+
+[Service]
+Type=simple
+User=hwlmadm
+WorkingDirectory=/home/hwlmadm/rspamd-hot-or-not
+Environment=APP_HOST=0.0.0.0
+Environment=APP_PORT=8000
+ExecStart=/home/hwlmadm/rspamd-hot-or-not/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+2. Auto-Sync One-shot Service anlegen:
+
+```ini
+# /etc/systemd/system/rspamd-hot-or-not-sync.service
+[Unit]
+Description=RspamdHotOrNot Auto Sync Once
+After=network.target
+
+[Service]
+Type=oneshot
+User=hwlmadm
+WorkingDirectory=/home/hwlmadm/rspamd-hot-or-not
+Environment=PYTHONPATH=/home/hwlmadm/rspamd-hot-or-not
+ExecStart=/home/hwlmadm/rspamd-hot-or-not/venv/bin/python /home/hwlmadm/rspamd-hot-or-not/scripts/sync_once.py
+```
+
+3. Auto-Sync Timer anlegen:
+
+```ini
+# /etc/systemd/system/rspamd-hot-or-not-sync.timer
+[Unit]
+Description=Run RspamdHotOrNot auto sync every minute
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+4. Aktivieren und starten:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now rspamd-hot-or-not.service
+sudo systemctl enable --now rspamd-hot-or-not-sync.timer
+sudo systemctl start rspamd-hot-or-not-sync.service
+```
+
+5. Status prüfen:
+
+```bash
+systemctl list-timers --no-pager | grep rspamd-hot-or-not-sync
+systemctl status rspamd-hot-or-not-sync.service --no-pager -l
+journalctl -u rspamd-hot-or-not-sync.service -n 30 --no-pager
+```
+
+### mbox -> Tool Inbox Bridge
+
+Wenn Mails nicht direkt als `.eml` in `data/emails` ankommen, sondern z.B. in `/var/mail/hwlmadm`,
+aktivieren Sie die Bridge in `.env`:
+
+```ini
+MAIL_SOURCE_TYPE=local_eml
+MAIL_SOURCE_PATH=./data/emails
+MAILBOX_BRIDGE_ENABLED=True
+MAILBOX_SOURCE_PATH=/var/mail/hwlmadm
+```
+
+Dann importiert `scripts/sync_once.py` zuerst aus mbox nach `data/emails/*.eml` und synchronisiert danach in die Datenbank.
+
 ---
 
 ## Updates von GitHub

@@ -23,73 +23,102 @@ Eine moderne, einfache Webanwendung für manuelle Spam-Klassifizierung und Rspam
 - **Containerisierung**: Docker & Docker Compose
 - **Authentifizierung**: Passlib (bcrypt)
 
-## Installation
+## Installation (fuer Anfaenger)
 
-### Einfach erklärt (in 5 Minuten)
+Diese Anleitung ist absichtlich simpel gehalten. Wenn du nur starten willst, kopiere die Befehle genau in dieser Reihenfolge.
 
-1. Projekt herunterladen (grüner **Code**-Button auf GitHub) oder klonen.
-2. Terminal im Projektordner öffnen.
-3. Installation starten mit `bash install.sh`.
-4. App starten mit `make run-dev`.
-5. Browser öffnen: **http://localhost:8000**.
+### Variante A: Lokaler Start auf deinem Rechner (empfohlen zum Ausprobieren)
 
-Login beim ersten Start:
-- Benutzername: `admin`
-- Passwort: `password123`
-
-Wenn ein Befehl nicht gefunden wird, zuerst Python 3.11+ und `make` installieren.
-
-### 1. Schnellstart (lokal)
+Voraussetzungen:
+- Git
+- Python 3.11+
 
 ```bash
-# Clone vom GitHub Repository
-git clone https://github.com/yourusername/rspamd-hot-or-not.git
-cd rspamd-hot-or-not
+# 1) Repository klonen
+git clone https://github.com/crz11880/RspamD-Hot-or-Not.git
+cd RspamD-Hot-or-Not
 
-# Automatische Installation
-bash install.sh
+# 2) Virtuelle Python-Umgebung anlegen und aktivieren
+python3 -m venv .venv
+source .venv/bin/activate
 
-# Oder manuell:
-python3 -m venv venv
-source venv/bin/activate  # macOS/Linux
-# oder: venv\Scripts\activate  (Windows)
-
+# 3) Abhaengigkeiten installieren
+pip install --upgrade pip
 pip install -r requirements.txt
+
+# 4) .env erzeugen
 cp .env.example .env
 
-# Datenbank und App starten
-make run-dev
+# 5) App starten
+make run
 ```
 
-Die App läuft dann unter: **http://localhost:8000**
+Danach im Browser oeffnen:
+- `http://127.0.0.1:8000`
 
 Standard-Login:
 - Benutzername: `admin`
 - Passwort: `password123`
 
-Siehe [INSTALL.md](INSTALL.md) für detaillierte Anweisungen.
+Wichtig nach dem ersten Login:
+- In den Einstellungen sofort Benutzername/Passwort aendern.
 
-### 2. Docker
+### Variante B: Installation auf Linux-Server mit Rspamd
 
 ```bash
-# Mit Docker Compose (inkl. Rspamd)
-docker-compose up -d
+# 1) Basis-Pakete
+sudo apt update
+sudo apt install -y git python3 python3-venv make rspamd-client
 
-# Oder nur die App
-docker build -t rspamd-learning .
-docker run -p 8000:8000 -v $(pwd)/data:/app/data rspamd-learning
+# 2) Projekt holen
+git clone https://github.com/crz11880/RspamD-Hot-or-Not.git
+cd RspamD-Hot-or-Not
+
+# 3) Installer ausfuehren
+bash install.sh
+
+# 4) Konfiguration
+cp .env.example .env
 ```
 
-### 3. Makefile Commands
+In `.env` mindestens diese Werte setzen:
 
-Nach Installation:
+```ini
+RSPAMD_ENABLED=True
+LEARN_COMMAND_TYPE=rspamc
+RSPAMD_HOST=127.0.0.1
+RSPAMD_PORT=11333
+
+MAIL_SOURCE_TYPE=local_eml
+MAIL_SOURCE_PATH=./data/emails
+MAILBOX_BRIDGE_ENABLED=True
+MAILBOX_SOURCE_PATH=/var/mail/<dein-user>
+```
+
+Dann starten:
+
 ```bash
-make help              # Alle verfügbaren Befehle
-make run              # Production starten
-make run-dev          # Development mit Auto-Reload
-make test             # Tests ausführen
-make docker-up        # Docker starten
+make run
 ```
+
+Im Browser oeffnen:
+- `http://SERVER-IP:8000`
+
+Wenn der Browser die Seite nicht erreicht:
+- Port `8000` in Firewall/Sicherheitsgruppe freigeben.
+
+### Schneller Funktionstest (2 Minuten)
+
+1. Login mit Standarddaten.
+2. Dashboard oeffnen.
+3. Auf `Mails synchronisieren` klicken.
+4. Zu `Review` wechseln und pruefen, ob Mails angezeigt werden.
+
+Wenn keine neuen Mails erscheinen:
+- Pruefen, ob nur Duplikate angekommen sind (werden bewusst uebersprungen).
+- Pruefen, ob `MAILBOX_SOURCE_PATH` korrekt ist.
+
+Fuer ausfuehrliche Installationsoptionen siehe [INSTALL.md](INSTALL.md).
 
 ## Konfiguration
 
@@ -110,6 +139,8 @@ ADMIN_PASSWORD=password123
 # Mail-Quelle
 MAIL_SOURCE_TYPE=local_eml
 MAIL_SOURCE_PATH=./data/emails
+MAILBOX_BRIDGE_ENABLED=True
+MAILBOX_SOURCE_PATH=/var/mail/hwlmadm
 
 # Rspamd (Optional)
 RSPAMD_ENABLED=False
@@ -131,6 +162,22 @@ data/emails/
 ├── mail2.eml
 └── mail3.eml
 ```
+
+### 1a. Automatischer Import aus System-Mailbox (Server)
+
+Wenn eingehende Mails auf dem Server als mbox-Datei landen (z.B. `/var/mail/hwlmadm`),
+kann der Auto-Sync diese automatisch nach `MAIL_SOURCE_PATH` als `.eml` importieren.
+
+Empfohlene `.env`-Werte:
+
+```ini
+MAIL_SOURCE_TYPE=local_eml
+MAIL_SOURCE_PATH=./data/emails
+MAILBOX_BRIDGE_ENABLED=True
+MAILBOX_SOURCE_PATH=/var/mail/hwlmadm
+```
+
+Damit erscheinen neue Server-Mails ohne manuellen Datei-Upload im Tool.
 
 ### 2. Im Dashboard synchronisieren
 
@@ -243,7 +290,11 @@ app/
 └── utils/               # Utilities
     ├── security.py      # Auth & Session Management
     ├── rspamd_client.py # Rspamd HTTP/CLI Clients
-    └── message_sync.py  # Mail Sync Service
+    ├── message_sync.py  # Mail Sync Service
+    └── mbox_bridge.py   # Import von mbox nach .eml
+
+scripts/
+└── sync_once.py         # One-shot Sync (Timer/Service)
 
 data/
 ├── db/                  # SQLite Database
@@ -380,6 +431,7 @@ class RspamdService:
 1. Stelle sicher, dass .eml-Dateien im korrekten Pfad liegen
 2. Klick Dashboard → "Mails synchronisieren"
 3. Überprüfe `data/emails/` Ordner
+4. Bei Serverbetrieb mit mbox: `MAILBOX_BRIDGE_ENABLED=True` und `MAILBOX_SOURCE_PATH` prüfen
 
 ### Rspamd-Verbindung fehlgeschlagen
 

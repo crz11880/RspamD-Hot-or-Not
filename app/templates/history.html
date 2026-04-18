@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verlauf - RspamdHotOrNot</title>
+    <title data-i18n="history_title">History - RspamdHotOrNot</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -15,17 +15,17 @@
             
             <ul class="nav-menu">
                 <li><a href="/dashboard">Dashboard</a></li>
-                <li><a href="/review">Prüfen</a></li>
-                <li><a href="/history" class="active">Verlauf</a></li>
-                <li><a href="/settings">Einstellungen</a></li>
+                <li><a href="/review" data-i18n="nav_review">Review</a></li>
+                <li><a href="/history" class="active" data-i18n="nav_history">History</a></li>
+                <li><a href="/settings" data-i18n="nav_settings">Settings</a></li>
                 <li class="divider"></li>
-                <li><a href="#" onclick="logout()" class="logout">Abmelden</a></li>
+                <li><a href="#" onclick="logout()" class="logout" data-i18n="nav_logout">Logout</a></li>
             </ul>
         </nav>
 
         <main class="main-content">
             <header class="top-bar">
-                <h1>Klassifizierungsverlauf</h1>
+                <h1 data-i18n="history_title">Classification history</h1>
                 <div class="user-info">
                     <span id="username"></span>
                 </div>
@@ -33,22 +33,22 @@
 
             <div class="content">
                 <div class="history-controls">
-                    <input type="text" id="searchInput" placeholder="Suchen..." class="search-input">
+                    <input type="text" id="searchInput" placeholder="Search..." class="search-input" data-i18n-placeholder="search_placeholder">
                 </div>
 
                 <div class="history-table">
                     <table>
                         <thead>
                             <tr>
-                                <th>Datum/Uhrzeit</th>
-                                <th>Absender</th>
-                                <th>Betreff</th>
-                                <th>Entscheidung</th>
-                                <th>Rspamd</th>
+                                <th data-i18n="col_datetime">Date/Time</th>
+                                <th data-i18n="col_sender">Sender</th>
+                                <th data-i18n="col_subject">Subject</th>
+                                <th data-i18n="col_decision">Decision</th>
+                                <th data-i18n="col_rspamd">Rspamd</th>
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
-                            <tr><td colspan="5" class="loading">Wird geladen...</td></tr>
+                            <tr><td colspan="5" class="loading" data-i18n="loading">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -56,6 +56,7 @@
         </main>
     </div>
 
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/app.js"></script>
     <script>
         async function loadHistory() {
@@ -70,13 +71,13 @@
                 const tbody = document.getElementById('historyTableBody');
                 
                 if (history.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5">Kein Verlauf</td></tr>';
+                    tbody.innerHTML = `<tr><td colspan="5">${t('no_history')}</td></tr>`;
                     return;
                 }
                 
                 tbody.innerHTML = history.map(item => `
                     <tr>
-                        <td>${new Date(item.created_at).toLocaleString('de-DE')}</td>
+                        <td>${formatDateLocalized(item.created_at)}</td>
                         <td>${escapeHtml(item.sender || '-')}</td>
                         <td>${escapeHtml(item.subject || '-')}</td>
                         <td><span class="decision-badge ${item.decision}">${getDe(item.decision)}</span></td>
@@ -85,12 +86,12 @@
                 `).join('');
             } catch (error) {
                 console.error('Error loading history:', error);
-                document.getElementById('historyTableBody').innerHTML = '<tr><td colspan="5">Fehler beim Laden</td></tr>';
+                document.getElementById('historyTableBody').innerHTML = `<tr><td colspan="5">${t('load_history_error')}</td></tr>`;
             }
         }
 
         function getDe(decision) {
-            const map = { spam: 'Spam', ham: 'Kein Spam', skipped: 'Übersprungen' };
+            const map = { spam: t('spam'), ham: t('decision_ham'), skipped: t('decision_skipped') };
             return map[decision] || decision;
         }
 
@@ -106,6 +107,7 @@
             return text.replace(/[&<>"']/g, m => map[m]);
         }
 
+        applyTranslations();
         document.getElementById('username').textContent = localStorage.getItem('username');
         loadHistory();
 

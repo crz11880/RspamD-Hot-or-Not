@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,10 +11,12 @@
         <h1>RspamdHotOrNot</h1>
         <p>Rspamd Learning Tool</p>
         <div class="loading-spinner"></div>
-        <p class="loading-text">Wird vorbereitet...</p>
+        <p class="loading-text" data-i18n="loading_prep">Preparing...</p>
     </div>
 
+    <script src="/static/js/i18n.js"></script>
     <script>
+        applyTranslations();
         window.location.href = localStorage.getItem('token') ? '/dashboard' : '/login';
     </script>
 </body>

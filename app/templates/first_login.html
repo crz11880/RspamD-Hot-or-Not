@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="first_login_title">First Login - RspamdHotOrNot</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <h1 data-i18n="security_first">Security first</h1>
+            <p class="subtitle" data-i18n="first_login_subtitle">Please change your username and password at first login.</p>
+
+            <form id="firstLoginForm">
+                <div class="form-group">
+                    <label for="currentPassword" data-i18n="current_password">Current password</label>
+                    <input type="password" id="currentPassword" name="currentPassword" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="newUsername" data-i18n="new_username">New username</label>
+                    <input type="text" id="newUsername" name="newUsername" minlength="3" maxlength="50" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword" data-i18n="new_password">New password</label>
+                    <input type="password" id="newPassword" name="newPassword" minlength="8" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" data-i18n="confirm_new_password">Confirm new password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-large" data-i18n="save_securely">Save securely</button>
+
+                <div id="errorMessage" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/i18n.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script>
+        applyTranslations();
+        document.getElementById('firstLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newUsername = document.getElementById('newUsername').value.trim();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorDiv = document.getElementById('errorMessage');
+
+            errorDiv.textContent = '';
+
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = t('passwords_mismatch');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/change-initial-credentials', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_username: newUsername,
+                        new_password: newPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorDiv.textContent = data.detail || t('update_failed');
+                    return;
+                }
+
+                localStorage.setItem('username', data.username);
+                window.location.href = '/dashboard';
+            } catch (error) {
+                errorDiv.textContent = t('save_error_prefix') + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

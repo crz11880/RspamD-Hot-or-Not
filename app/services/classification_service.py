@@ -5,6 +5,7 @@ from app.models.message import Message as MessageModel
 from app.models.classification import Classification as ClassificationModel
 from app.services.rspamd_service import RspamdService
 from app.services.audit_log_service import AuditLogService
+from app.providers.factory import get_provider
 from datetime import datetime, timedelta
 
 class ClassificationService:
@@ -32,6 +33,14 @@ class ClassificationService:
         )
         
         message.status = "classified"
+
+        # Move the source message out of the pending folder if possible.
+        try:
+            provider = get_provider()
+            provider.mark_processed(message.provider_id, decision)
+        except Exception:
+            # Classification should still succeed even if file move fails.
+            pass
         
         if rspamd_enabled and message.raw_message:
             try:
@@ -64,6 +73,14 @@ class ClassificationService:
             raise ValueError("Message not found")
         
         message.status = "skipped"
+
+        # Keep filesystem state in sync with DB status.
+        try:
+            provider = get_provider()
+            provider.skip_message(message.provider_id)
+        except Exception:
+            pass
+
         db.commit()
         
         AuditLogService.log_action(
