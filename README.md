@@ -25,6 +25,20 @@ Eine moderne, einfache Webanwendung für manuelle Spam-Klassifizierung und Rspam
 
 ## Installation
 
+### Einfach erklärt (in 5 Minuten)
+
+1. Projekt herunterladen (grüner **Code**-Button auf GitHub) oder klonen.
+2. Terminal im Projektordner öffnen.
+3. Installation starten mit `bash install.sh`.
+4. App starten mit `make run-dev`.
+5. Browser öffnen: **http://localhost:8000**.
+
+Login beim ersten Start:
+- Benutzername: `admin`
+- Passwort: `password123`
+
+Wenn ein Befehl nicht gefunden wird, zuerst Python 3.11+ und `make` installieren.
+
 ### 1. Schnellstart (lokal)
 
 ```bash
@@ -391,6 +405,7 @@ Beiträge sind willkommen! Siehe [CONTRIBUTING.md](CONTRIBUTING.md) für Richtli
 - **Issues**: GitHub Issues für Bugs und Features
 - **Diskussionen**: GitHub Discussions für Fragen
 - **Documentation**: [INSTALL.md](INSTALL.md), [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Support the Project**: [Buy Me a Coffee](https://buymeacoffee.com/worklessit)
 
 ## Versionshistorie
 
