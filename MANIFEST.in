@@ -1,0 +1,23 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include INSTALL.md
+include CONTRIBUTING.md
+include .env.example
+include requirements.txt
+include pyproject.toml
+include Makefile
+include Dockerfile
+include docker-compose.yml
+
+recursive-include app *.py
+recursive-include app/templates *.html
+recursive-include app/static *.css *.js
+
+exclude data/db/*.db
+exclude data/emails/processed/*
+exclude .git*
+exclude .env
+exclude venv
+exclude __pycache__
+exclude *.pyc

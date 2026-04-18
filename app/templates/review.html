@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prüfen - RspamdHotOrNot</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>RspamdHotOrNot</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/review" class="active">Prüfen</a></li>
+                <li><a href="/history">Verlauf</a></li>
+                <li><a href="/settings">Einstellungen</a></li>
+                <li class="divider"></li>
+                <li><a href="#" onclick="logout()" class="logout">Abmelden</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Mail-Prüfung</h1>
+                <div class="user-info">
+                    <span id="username"></span>
+                </div>
+            </header>
+
+            <div class="content review-content">
+                <div id="noMessagesDiv" class="no-messages" style="display:none;">
+                    <p>Keine offenen Mails zur Prüfung</p>
+                    <button class="btn btn-primary" onclick="location.href='/dashboard'">Zum Dashboard</button>
+                </div>
+
+                <div id="messageContainer" class="message-container">
+                    <div class="loading">Wird geladen...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/review.js"></script>
+</body>
+</html>

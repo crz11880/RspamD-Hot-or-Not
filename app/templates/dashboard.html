@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - RspamdHotOrNot</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>RspamdHotOrNot</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/dashboard" class="active">Dashboard</a></li>
+                <li><a href="/review">Prüfen</a></li>
+                <li><a href="/history">Verlauf</a></li>
+                <li><a href="/settings">Einstellungen</a></li>
+                <li class="divider"></li>
+                <li><a href="#" onclick="logout()" class="logout">Abmelden</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Dashboard</h1>
+                <div class="user-info">
+                    <span id="username"></span>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Offene Prüfungen</div>
+                        <div class="stat-value" id="pendingCount">-</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Spam heute</div>
+                        <div class="stat-value" id="spamToday">-</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Ham heute</div>
+                        <div class="stat-value" id="hamToday">-</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Gesamt bearbeitet</div>
+                        <div class="stat-value" id="totalProcessed">-</div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="syncMessages()">Mails synchronisieren</button>
+                    <button class="btn btn-secondary" onclick="window.location.href='/review'">Zur Prüfseite</button>
+                </div>
+
+                <section class="recent-activities">
+                    <h2>Letzte Aktivitäten</h2>
+                    <div id="activitiesList" class="activities-list">
+                        <p class="loading">Wird geladen...</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/dashboard/stats', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('pendingCount').textContent = data.pending_count;
+                document.getElementById('spamToday').textContent = data.spam_today;
+                document.getElementById('hamToday').textContent = data.ham_today;
+                document.getElementById('totalProcessed').textContent = data.total_processed;
+                
+                loadActivities();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        async function loadActivities() {
+            try {
+                const response = await fetch('/api/dashboard/recent-activities', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                const activities = await response.json();
+                const list = document.getElementById('activitiesList');
+                
+                if (activities.length === 0) {
+                    list.innerHTML = '<p>Keine Aktivitäten</p>';
+                    return;
+                }
+                
+                list.innerHTML = activities.slice(0, 10).map(a => `
+                    <div class="activity-item">
+                        <span class="activity-action">${a.action}</span>
+                        <span class="activity-time">${new Date(a.created_at).toLocaleString('de-DE')}</span>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading activities:', error);
+            }
+        }
+
+        async function syncMessages() {
+            try {
+                const response = await fetch('/api/dashboard/sync-messages', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                const data = await response.json();
+                alert(`Synchronisiert: ${data.new_messages} neue Mails, ${data.duplicates_skipped} Duplikate`);
+                loadDashboard();
+            } catch (error) {
+                alert('Fehler beim Synchronisieren: ' + error.message);
+            }
+        }
+
+        document.getElementById('username').textContent = localStorage.getItem('username');
+        loadDashboard();
+    </script>
+</body>
+</html>

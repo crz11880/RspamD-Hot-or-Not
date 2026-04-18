@@ -1,0 +1,22 @@
+From: sender@example.com
+To: user@example.com
+Subject: Project Meeting Tomorrow at 3 PM
+Date: Mon, 15 Jan 2024 14:30:00 +0000
+Message-ID: <test2@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+Hi,
+
+Just a quick reminder about our project meeting tomorrow at 3 PM in the conference room.
+
+Topics to discuss:
+- Project status update
+- Q1 planning
+- Resource allocation
+
+Please let me know if you have any questions.
+
+Best regards,
+Alex

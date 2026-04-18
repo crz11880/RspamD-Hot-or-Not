@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einstellungen - RspamdHotOrNot</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>RspamdHotOrNot</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/review">Prüfen</a></li>
+                <li><a href="/history">Verlauf</a></li>
+                <li><a href="/settings" class="active">Einstellungen</a></li>
+                <li class="divider"></li>
+                <li><a href="#" onclick="logout()" class="logout">Abmelden</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Einstellungen</h1>
+                <div class="user-info">
+                    <span id="username"></span>
+                </div>
+            </header>
+
+            <div class="content settings-content">
+                <div class="settings-section">
+                    <h2>Mail-Quelle</h2>
+                    <p class="info">Aktuelle Quelle: <code id="mailSource">-</code></p>
+                    <p class="note">Die Mail-Quelle wird aus der .env-Datei konfiguriert.</p>
+                </div>
+
+                <div class="settings-section">
+                    <h2>Rspamd-Integration</h2>
+                    <div class="settings-item">
+                        <label>Status:</label>
+                        <span id="rspamdStatus" class="status-indicator">-</span>
+                    </div>
+                    <p class="note">Rspamd-Verbindung wird beim Start überprüft.</p>
+                </div>
+
+                <div class="settings-section">
+                    <h2>Verwaltung</h2>
+                    <button class="btn btn-secondary" onclick="resetDatabase()">Datenbank zurücksetzen</button>
+                    <p class="warning">Dies wird alle Klassifizierungen löschen.</p>
+                </div>
+
+                <div id="message" class="message"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/dashboard/stats', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                const data = await response.json();
+                const status = data.rspamd.enabled ? 'Verbunden' : 'Deaktiviert';
+                document.getElementById('rspamdStatus').textContent = status;
+                document.getElementById('rspamdStatus').className = 'status-indicator ' + (data.rspamd.enabled ? 'active' : 'inactive');
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        async function resetDatabase() {
+            if (confirm('Alle Daten werden gelöscht. Fortfahren?')) {
+                try {
+                    const response = await fetch('/api/admin/init-database', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    showMessage(data.message, 'success');
+                } catch (error) {
+                    showMessage('Fehler: ' + error.message, 'error');
+                }
+            }
+        }
+
+        function showMessage(text, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = text;
+            msgDiv.className = 'message ' + type;
+            setTimeout(() => msgDiv.textContent = '', 3000);
+        }
+
+        document.getElementById('username').textContent = localStorage.getItem('username');
+        loadSettings();
+    </script>
+</body>
+</html>

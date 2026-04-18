@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verlauf - RspamdHotOrNot</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>RspamdHotOrNot</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/review">Prüfen</a></li>
+                <li><a href="/history" class="active">Verlauf</a></li>
+                <li><a href="/settings">Einstellungen</a></li>
+                <li class="divider"></li>
+                <li><a href="#" onclick="logout()" class="logout">Abmelden</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Klassifizierungsverlauf</h1>
+                <div class="user-info">
+                    <span id="username"></span>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="history-controls">
+                    <input type="text" id="searchInput" placeholder="Suchen..." class="search-input">
+                </div>
+
+                <div class="history-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Datum/Uhrzeit</th>
+                                <th>Absender</th>
+                                <th>Betreff</th>
+                                <th>Entscheidung</th>
+                                <th>Rspamd</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr><td colspan="5" class="loading">Wird geladen...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/messages/history/list?limit=200', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                const history = await response.json();
+                const tbody = document.getElementById('historyTableBody');
+                
+                if (history.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5">Kein Verlauf</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = history.map(item => `
+                    <tr>
+                        <td>${new Date(item.created_at).toLocaleString('de-DE')}</td>
+                        <td>${escapeHtml(item.sender || '-')}</td>
+                        <td>${escapeHtml(item.subject || '-')}</td>
+                        <td><span class="decision-badge ${item.decision}">${getDe(item.decision)}</span></td>
+                        <td><span class="rspamd-status ${item.rspamd_status}">${item.rspamd_status}</span></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading history:', error);
+                document.getElementById('historyTableBody').innerHTML = '<tr><td colspan="5">Fehler beim Laden</td></tr>';
+            }
+        }
+
+        function getDe(decision) {
+            const map = { spam: 'Spam', ham: 'Kein Spam', skipped: 'Übersprungen' };
+            return map[decision] || decision;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        document.getElementById('username').textContent = localStorage.getItem('username');
+        loadHistory();
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('#historyTableBody tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

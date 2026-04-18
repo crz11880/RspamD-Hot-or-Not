@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RspamdHotOrNot</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="splash-screen">
+        <h1>RspamdHotOrNot</h1>
+        <p>Rspamd Learning Tool</p>
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Wird vorbereitet...</p>
+    </div>
+
+    <script>
+        window.location.href = localStorage.getItem('token') ? '/dashboard' : '/login';
+    </script>
+</body>
+</html>

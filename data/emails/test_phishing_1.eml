@@ -1,0 +1,17 @@
+From: noreply@bank.com
+To: user@example.com
+Subject: VERIFY YOUR ACCOUNT NOW - URGENT
+Date: Tue, 16 Jan 2024 09:15:00 +0000
+Message-ID: <test3@phishing.com>
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+<html>
+<body>
+<h2>URGENT: Verify Your Account</h2>
+<p>Your account has been compromised. Click the link below immediately to verify:</p>
+<a href="http://phishing-site.com/verify">Verify Account</a>
+<p>This is urgent! Do not ignore this message.</p>
+</body>
+</html>
