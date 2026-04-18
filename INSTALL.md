@@ -1,354 +1,122 @@
 # Installation Guide - RspamdHotOrNot
 
-## Schnellstart von GitHub
+Diese Anleitung ist fuer Einsteiger geschrieben.
+Wenn du die Schritte der Reihe nach ausfuehrst, laeuft die App in wenigen Minuten.
 
-### 1. Clone des Repositories
+## 1. Schnellstart (lokal, empfohlen)
 
-```bash
-git clone https://github.com/yourusername/rspamd-hot-or-not.git
-cd rspamd-hot-or-not
-```
+Voraussetzungen:
+- Git
+- Python 3.11+
 
-### 2. Installation (automatisch)
-
-#### macOS/Linux:
-```bash
-chmod +x install.sh
-./install.sh
-```
-
-#### Windows (PowerShell):
-```powershell
-python -m venv venv
-venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-cp .env.example .env
-```
-
-### 3. Konfiguration
-
-Bearbeiten Sie die `.env`-Datei:
-```bash
-nano .env
-```
-
-Wichtige Einstellungen:
-- `SECRET_KEY`: Ändern Sie zu einem sicheren Wert
-- `ADMIN_PASSWORD`: Ändern Sie das Standard-Passwort
-- `MAIL_SOURCE_PATH`: Pfad zu Ihren .eml-Dateien
-- `RSPAMD_ENABLED`: Setzen Sie auf `True` wenn Rspamd verfügbar ist
-
-### 4. Start der Anwendung
-
-#### Development-Modus (mit Auto-Reload):
-```bash
-make run-dev
-# oder manuell:
-source venv/bin/activate
-python -m uvicorn app.main:app --reload
-```
-
-#### Production-Modus:
-```bash
-make run
-# oder manuell:
-source venv/bin/activate
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
-
-Zugriffsadresse: **http://localhost:8000**
-
----
-
-## Detaillierte Installation
-
-### Schritt 1: Git installieren
-
-Falls nicht vorhanden:
-- **macOS**: `brew install git`
-- **Ubuntu/Debian**: `apt-get install git`
-- **Windows**: https://git-scm.com/download/win
-
-### Schritt 2: Repository klonen
+### Schritt 1: Repository klonen
 
 ```bash
-git clone https://github.com/yourusername/rspamd-hot-or-not.git
-cd rspamd-hot-or-not
+git clone https://github.com/crz11880/RspamD-Hot-or-Not.git
+cd RspamD-Hot-or-Not
 ```
 
-### Schritt 3: Python Environment
+### Schritt 2: Python-Umgebung erstellen
 
 ```bash
-# Python 3.9+ erforderlich
-python3 --version
-
-# Virtual Environment erstellen
-python3 -m venv venv
-
-# Aktivieren
-source venv/bin/activate          # macOS/Linux
-# oder
-venv\Scripts\activate.bat         # Windows CMD
-# oder
-venv\Scripts\Activate.ps1         # Windows PowerShell
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-### Schritt 4: Abhängigkeiten installieren
+### Schritt 3: Abhaengigkeiten installieren
 
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Schritt 5: Umgebungsvariablen
+### Schritt 4: Konfiguration anlegen
 
 ```bash
 cp .env.example .env
-nano .env  # Bearbeiten Sie die Einstellungen
 ```
 
-### Schritt 6: Datenbank vorbereiten
+### Schritt 5: App starten
 
 ```bash
-mkdir -p data/db data/emails
-python -c "from app.db import init_db; init_db()"
+make run
 ```
 
-### Schritt 7: Start
+### Schritt 6: Im Browser oeffnen
 
-```bash
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
+- http://127.0.0.1:8000
+
+Standard-Login:
+- Benutzername: admin
+- Passwort: password123
+
+Direkt danach in den Einstellungen die Zugangsdaten aendern.
 
 ---
 
-## Mit Docker
+## 2. Linux-Server Installation (mit Rspamd)
 
-### Voraussetzungen
-- Docker: https://docker.com/get-started
-- Docker Compose: Normalerweise mit Docker enthalten
+Diese Variante ist fuer einen Server gedacht, auf dem Rspamd bereits vorhanden ist.
 
-### Installation
+### Schritt 1: Pakete installieren
 
 ```bash
-git clone https://github.com/yourusername/rspamd-hot-or-not.git
-cd rspamd-hot-or-not
-
-# Mit Rspamd-Integration
-docker-compose up -d
-
-# Oder nur die App
-docker build -t rspamd-learning .
-docker run -p 8000:8000 -v $(pwd)/data:/app/data rspamd-learning
+sudo apt update
+sudo apt install -y git python3 python3-venv make rspamd-client
 ```
 
-Zugriffsadresse: **http://localhost:8000**
-
-### Logs ansehen
+### Schritt 2: Repository klonen
 
 ```bash
-docker-compose logs -f app
+git clone https://github.com/crz11880/RspamD-Hot-or-Not.git
+cd RspamD-Hot-or-Not
 ```
 
-### Container stoppen
+### Schritt 3: Projekt installieren
 
 ```bash
-docker-compose down
+bash install.sh
 ```
 
----
-
-## Systemanforderungen
-
-### Minimum
-- **Python**: 3.9+
-- **RAM**: 256 MB
-- **Disk**: 100 MB
-- **OS**: Linux, macOS, Windows
-
-### Empfohlen
-- **Python**: 3.11+
-- **RAM**: 512 MB
-- **Disk**: 1 GB (für Mails)
-- **OS**: Linux (für Production)
-
----
-
-## Makefile Commands
-
-Nach Installation können Sie diese Befehle nutzen:
+### Schritt 4: .env anlegen
 
 ```bash
-make help              # Alle verfügbaren Befehle anzeigen
-make run              # Produktions-Server starten
-make run-dev          # Development-Server mit Reload starten
-make test             # Tests ausführen
-make lint             # Code-Qualitätsprüfung
-make format           # Code formatieren
-make docker-up        # Docker Compose starten
-make docker-down      # Docker Compose stoppen
-make clean            # Cache löschen
+cp .env.example .env
 ```
 
----
+### Schritt 5: Mindestkonfiguration setzen
 
-## Erste Schritte
+In .env diese Werte eintragen:
 
-### 1. Test-Mails hinzufügen
-
-```bash
-# Im Projekt-Verzeichnis befinden sich bereits Test-Mails:
-ls data/emails/*.eml
-```
-
-Oder neue .eml-Dateien hinzufügen:
-```bash
-cp your-email.eml data/emails/
-```
-
-### 2. Dashboard aufrufen
-
-1. Browser: http://localhost:8000
-2. Login: `admin` / `password123`
-3. Dashboard → "Mails synchronisieren"
-4. Zur Prüfseite wechseln
-
-### 3. Mails klassifizieren
-
-- **Spam**: Klick "Spam" oder Taste `S`
-- **Kein Spam**: Klick "Kein Spam" oder Taste `H`
-- **Überspringen**: Klick "Überspringen" oder Taste `U`
-
----
-
-## Troubleshooting
-
-### "ModuleNotFoundError: No module named 'fastapi'"
-
-**Lösung**: Virtual Environment wurde nicht aktiviert
-```bash
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-### "Port 8000 already in use"
-
-**Lösung**: Port ändern oder anderen Prozess stoppen
-```bash
-# Anderen Port nutzen:
-python -m uvicorn app.main:app --port 8001
-
-# Oder Prozess auf Port 8000 finden:
-lsof -i :8000
-kill -9 <PID>
-```
-
-### "Database is locked"
-
-**Lösung**: Andere Prozesse schließen oder DB zurücksetzen
-```bash
-make db-reset
-# oder manuell:
-rm -f data/db/*.db
-python -c "from app.db import init_db; init_db()"
-```
-
-### Rspamd-Verbindung funktioniert nicht
-
-**Überprüfung**:
-```bash
-# Test mit rspamc:
-rspamc ping
-
-# Test mit HTTP:
-curl http://rspamd-host:11333/stat
-```
-
-**In .env setzen**:
 ```ini
 RSPAMD_ENABLED=True
-RSPAMD_HOST=your-rspamd-host
-RSPAMD_PORT=11333
 LEARN_COMMAND_TYPE=rspamc
+RSPAMD_HOST=127.0.0.1
+RSPAMD_PORT=11333
+
+MAIL_SOURCE_TYPE=local_eml
+MAIL_SOURCE_PATH=./data/emails
+MAILBOX_BRIDGE_ENABLED=True
+MAILBOX_SOURCE_PATH=/var/mail/<dein-user>
 ```
+
+### Schritt 6: App starten
+
+```bash
+make run
+```
+
+Wenn noetig Port 8000 in der Firewall freigeben.
 
 ---
 
-## Sicherheit in Production
+## 3. Production mit systemd (bewaehrtes Setup)
 
-### Kritische Änderungen vor dem Deploy
+### 3.1 App-Service
 
-1. **SECRET_KEY** ändern:
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-2. **Admin-Passwort** ändern:
-```bash
-# In .env oder nach Login über Benutzer-API
-```
-
-3. **DEBUG deaktivieren**:
-```ini
-DEBUG=False
-```
-
-4. **HTTPS** aktivieren (reverse proxy empfohlen):
-```bash
-# Beispiel mit nginx
-```
-
-### Deployment mit Supervisor (Production)
-
-`/etc/supervisor/conf.d/rspamd-learning.conf`:
-```ini
-[program:rspamd-learning]
-directory=/path/to/rspamd-hot-or-not
-command=/path/to/rspamd-hot-or-not/venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
-autostart=true
-autorestart=true
-user=www-data
-environment=PATH="/path/to/venv/bin"
-stdout_logfile=/var/log/rspamd-learning.log
-```
-
-### Deployment mit Systemd (Production)
-
-`/etc/systemd/system/rspamd-learning.service`:
-```ini
-[Unit]
-Description=RspamdHotOrNot
-After=network.target
-
-[Service]
-Type=simple
-User=www-data
-WorkingDirectory=/path/to/rspamd-hot-or-not
-Environment="PATH=/path/to/venv/bin"
-ExecStart=/path/to/venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Start:
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable rspamd-learning
-sudo systemctl start rspamd-learning
-sudo systemctl status rspamd-learning
-```
-
-### Production auf Rspamd-Server (systemd + Auto-Sync)
-
-Dieser Abschnitt entspricht dem produktiven Setup mit User `hwlmadm` und Projektpfad `~/rspamd-hot-or-not`.
-
-1. App-Service anlegen:
+Datei: /etc/systemd/system/rspamd-hot-or-not.service
 
 ```ini
-# /etc/systemd/system/rspamd-hot-or-not.service
 [Unit]
 Description=RspamdHotOrNot FastAPI Service
 After=network.target
@@ -367,10 +135,11 @@ RestartSec=5
 WantedBy=multi-user.target
 ```
 
-2. Auto-Sync One-shot Service anlegen:
+### 3.2 Auto-Sync Service
+
+Datei: /etc/systemd/system/rspamd-hot-or-not-sync.service
 
 ```ini
-# /etc/systemd/system/rspamd-hot-or-not-sync.service
 [Unit]
 Description=RspamdHotOrNot Auto Sync Once
 After=network.target
@@ -383,10 +152,11 @@ Environment=PYTHONPATH=/home/hwlmadm/rspamd-hot-or-not
 ExecStart=/home/hwlmadm/rspamd-hot-or-not/venv/bin/python /home/hwlmadm/rspamd-hot-or-not/scripts/sync_once.py
 ```
 
-3. Auto-Sync Timer anlegen:
+### 3.3 Auto-Sync Timer
+
+Datei: /etc/systemd/system/rspamd-hot-or-not-sync.timer
 
 ```ini
-# /etc/systemd/system/rspamd-hot-or-not-sync.timer
 [Unit]
 Description=Run RspamdHotOrNot auto sync every minute
 
@@ -399,7 +169,7 @@ Persistent=true
 WantedBy=timers.target
 ```
 
-4. Aktivieren und starten:
+### 3.4 Aktivieren
 
 ```bash
 sudo systemctl daemon-reload
@@ -408,86 +178,110 @@ sudo systemctl enable --now rspamd-hot-or-not-sync.timer
 sudo systemctl start rspamd-hot-or-not-sync.service
 ```
 
-5. Status prüfen:
+### 3.5 Status pruefen
 
 ```bash
+systemctl status rspamd-hot-or-not.service --no-pager -l
 systemctl list-timers --no-pager | grep rspamd-hot-or-not-sync
-systemctl status rspamd-hot-or-not-sync.service --no-pager -l
 journalctl -u rspamd-hot-or-not-sync.service -n 30 --no-pager
 ```
 
-### mbox -> Tool Inbox Bridge
+---
 
-Wenn Mails nicht direkt als `.eml` in `data/emails` ankommen, sondern z.B. in `/var/mail/hwlmadm`,
-aktivieren Sie die Bridge in `.env`:
+## 4. Erster Funktionstest (2 Minuten)
+
+1. Login mit admin / password123.
+2. Dashboard oeffnen.
+3. Mails synchronisieren klicken.
+4. Zu Review wechseln und pruefen, ob neue Nachrichten angezeigt werden.
+
+Hinweis:
+- Duplikate werden absichtlich nicht als neue Mails gezaehlt.
+
+---
+
+## 5. Update von GitHub
+
+```bash
+git pull origin main
+source .venv/bin/activate
+pip install -r requirements.txt --upgrade
+```
+
+Bei systemd-Deployments anschliessend:
+
+```bash
+sudo systemctl restart rspamd-hot-or-not.service
+sudo systemctl start rspamd-hot-or-not-sync.service
+```
+
+---
+
+## 6. Typische Fehler und Loesungen
+
+### Fehler: ModuleNotFoundError
+
+Loesung:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Fehler: Port 8000 belegt
+
+Loesung:
+
+```bash
+lsof -i :8000
+kill -9 <PID>
+```
+
+Oder anderen Port verwenden.
+
+### Fehler: Keine neuen Mails sichtbar
+
+Pruefen:
+- Stimmt MAILBOX_SOURCE_PATH?
+- Laeuft der sync timer?
+- Sind neue Mails eventuell Duplikate?
+
+Hilfreiche Befehle:
+
+```bash
+systemctl list-timers --no-pager | grep rspamd-hot-or-not-sync
+journalctl -u rspamd-hot-or-not-sync.service -n 50 --no-pager
+```
+
+### Fehler: Rspamd nicht erreichbar
+
+Pruefen:
+
+```bash
+rspamc ping
+```
+
+Und in .env:
 
 ```ini
-MAIL_SOURCE_TYPE=local_eml
-MAIL_SOURCE_PATH=./data/emails
-MAILBOX_BRIDGE_ENABLED=True
-MAILBOX_SOURCE_PATH=/var/mail/hwlmadm
-```
-
-Dann importiert `scripts/sync_once.py` zuerst aus mbox nach `data/emails/*.eml` und synchronisiert danach in die Datenbank.
-
----
-
-## Updates von GitHub
-
-```bash
-# Neueste Version holen
-git pull origin main
-
-# Dependencies aktualisieren
-pip install -r requirements.txt --upgrade
-
-# Datenbank-Migrationen durchführen (falls vorhanden)
-# python -m alembic upgrade head
-
-# Neu starten
-make run
+RSPAMD_ENABLED=True
+LEARN_COMMAND_TYPE=rspamc
+RSPAMD_HOST=127.0.0.1
+RSPAMD_PORT=11333
 ```
 
 ---
 
-## Support & Debugging
+## 7. Sicherheit fuer Produktion
 
-### Logs ansehen
+Vor einem echten Internet-Deploy unbedingt:
+- ADMIN Passwort aendern
+- SECRET_KEY ersetzen
+- DEBUG=False setzen
+- Reverse Proxy mit HTTPS nutzen (z. B. nginx)
 
-```bash
-# Terminal während Laufzeit beobachten
-tail -f /var/log/rspamd-learning.log
-
-# Oder während Development:
-python -m uvicorn app.main:app --log-level debug
-```
-
-### Debug-Informationen
+Secret erzeugen:
 
 ```bash
-# Python Version
-python --version
-
-# Installed packages
-pip list
-
-# Datenbank überprüfen
-sqlite3 data/db/rspamd_learning.db ".tables"
-
-# API-Test
-curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8000/api/messages/pending
+python3 -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
-
----
-
-## Nächste Schritte
-
-1. ✅ Installation
-2. ✅ Konfiguration
-3. 📧 Test-Mails vorbereiten
-4. 🔗 Rspamd verbinden (optional)
-5. 👥 Weitere Benutzer hinzufügen
-6. 🔒 HTTPS einrichten
-7. 📊 Monitoring aufsetzen
-
-Viel Erfolg!
