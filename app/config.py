@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     
     MAILBOX_BRIDGE_ENABLED: bool = True
     MAILBOX_SOURCE_PATH: str = "/var/mail/hwlmadm"
+    MAILBOX_SOURCE_GLOB: str = "/var/mail/*"
     
     RSPAMD_ENABLED: bool = False
     RSPAMD_HOST: str = "127.0.0.1"
