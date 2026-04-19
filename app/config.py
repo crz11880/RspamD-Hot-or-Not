@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     MAIL_SOURCE_TYPE: str = "local_eml"
     MAIL_SOURCE_PATH: str = "/app/data/emails"
     
+    MAILBOX_BRIDGE_ENABLED: bool = True
+    MAILBOX_SOURCE_PATH: str = "/var/mail/hwlmadm"
+    
     RSPAMD_ENABLED: bool = False
     RSPAMD_HOST: str = "127.0.0.1"
     RSPAMD_PORT: int = 11333
